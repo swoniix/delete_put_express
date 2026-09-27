@@ -9,3 +9,17 @@ GET http://localhost:4200/books/title/Гарри
 
 ### То же самое через query-параметр
 GET http://localhost:4200/books?title=Гарри
+
+### Обновить книгу
+PUT http://localhost:4200/books/1
+Content-Type: application/json
+
+{
+  "title": "Новое название",
+  "price": 500,
+  "is_active": true,
+  "image": "hobbit.svg"
+}
+
+### Удалить книгу
+DELETE http://localhost:4200/books/1

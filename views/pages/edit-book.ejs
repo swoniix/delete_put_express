@@ -1,0 +1,74 @@
+<section class="container form-page">
+  <a href="/books" class="back-link">← Вернуться к книгам</a>
+  <div class="form-card">
+    <p class="eyebrow">Книга № <%= book.id %></p>
+    <h1>Редактировать книгу</h1>
+
+    <form id="edit-book-form" class="book-form">
+      <div class="form-group">
+        <label for="title">Название</label>
+        <input id="title" name="title" type="text" value="<%= book.title %>" required>
+      </div>
+
+      <div class="form-group">
+        <label for="price">Цена</label>
+        <input id="price" name="price" type="number" value="<%= book.price %>" min="0" step="1" required>
+      </div>
+
+      <div class="form-group">
+        <label for="image">Имя файла обложки</label>
+        <input id="image" name="image" type="text" value="<%= book.image || '' %>" placeholder="hobbit.svg">
+      </div>
+
+      <label class="checkbox-label">
+        <input name="is_active" type="checkbox" <%= book.is_active ? "checked" : "" %>>
+        Книга в наличии
+      </label>
+
+      <p id="form-message" class="form-message" aria-live="polite"></p>
+      <div class="form-actions">
+        <button type="submit" class="button button-dark">Сохранить</button>
+        <a href="/books" class="button button-outline">Отмена</a>
+      </div>
+    </form>
+  </div>
+</section>
+
+<script>
+  const form = document.querySelector("#edit-book-form");
+  const message = document.querySelector("#form-message");
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const submitButton = form.querySelector('button[type="submit"]');
+    const formData = new FormData(form);
+    const body = {
+      title: formData.get("title"),
+      price: formData.get("price"),
+      image: formData.get("image"),
+      is_active: formData.has("is_active")
+    };
+
+    submitButton.disabled = true;
+    message.textContent = "Сохраняем…";
+    message.className = "form-message";
+
+    try {
+      const response = await fetch("/books/<%= book.id %>", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+      const result = await response.json();
+
+      if (!response.ok) throw new Error(result.message || "Не удалось обновить книгу");
+      message.textContent = "Изменения сохранены";
+      message.className = "form-message success";
+      setTimeout(() => window.location.assign("/books"), 600);
+    } catch (error) {
+      message.textContent = error.message;
+      message.className = "form-message error";
+      submitButton.disabled = false;
+    }
+  });
+</script>
